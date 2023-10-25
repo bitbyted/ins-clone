@@ -1,16 +1,13 @@
 const mongoose = require('mongoose');
-const config = require('config');
-const db = config.get('mongoURI');
-const connectDB = async () => {
-  try {
-    await mongoose.connect(db, {
-      useNewUrlParser: true,
-    });
-    console.log('MongoDB connected...');
-  } catch (error) {
-    console.error(error.message);
-    process.exit(1);
-  }
-};
+let isConnected = false;
+export const connectToDB = async () => {
+  mongoose.set('strictQuery', true);
+  if (!process.env.MONGODB_URI) return console.log('MONGODB_URI is not defined');
+  if (isConnected) return console.log('=>using existing database connection');
 
-module.exports = connectDB;
+  try {
+    await mongoose.connect(process.env.MONGODB_URI);
+    isConnected = true;
+    console.log('MongoDB Connected');
+  } catch (error) {}
+};
